@@ -1,0 +1,15 @@
+{
+    "name": "mytmsbot",
+    "services": [
+        {
+            "type": "endpoint",
+            "name": "development",
+            "endpoint": "http://localhost:3978/api/messages",
+            "appId": "b6de1dce-ab70-4a06-81ed-e20758574f25",
+            "appPassword": "xfeiyfREEP10?((kOLS094_",
+            "id": "1"
+        }
+    ],
+    "padlock": "",
+    "version": "2.0"
+}

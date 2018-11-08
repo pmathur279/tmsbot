@@ -1,0 +1,127 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.3/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.3",
+  "version": "1.0.0",
+  "id": "b6de1dce-ab70-4a06-81ed-e20758574f25",
+  "packageName": "com.example.tmsbot",
+  "developer": {
+    "name": "Pratik Mathur",
+    "websiteUrl": "https://totalmortgage.com/",
+    "privacyUrl": "https://totalmortgage.com/",
+    "termsOfUseUrl": "https://totalmortgage.com/"
+  },
+  "name": {
+    "short": "mytmsbot",
+    "full": "My TMS Bot"
+  },
+  "description": {
+    "short": "TMS ",
+    "full": "Full description of your app"
+  },
+  "icons": {
+    "outline": "embr.png", 
+    "color": "embr.png" 
+  },
+  "accentColor": "#6f6f6f",
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://57e771fc.ngrok.io/api/messages",
+      "canUpdateConfiguration": true,
+      "scopes": [ "team" ]
+    }
+  ],
+  "staticTabs": [
+    {
+      "entityId": "com.totalmortgage.hellobot.hellotab",
+      "name": "TMS Bot",
+      "contentUrl": "https://57e771fc.ngrok.io/api/messages/",
+      "websiteUrl": "https://contoso.com/content",
+      "scopes": [ "personal" ]
+    }
+  ],
+  "bots": [
+    {
+      "botId": "b6de1dce-ab70-4a06-81ed-e20758574f25",
+      "needsChannelSelector": false,
+      "isNotificationOnly": false,
+      "scopes": [ "team", "personal", "groupchat"],
+      "supportsFiles": true,
+      "commandLists": [
+        {
+          "scopes": [ "team" ],
+          "commands": [
+            {
+              "title": "Command 1",
+              "description": "Description of Command 1"
+            },
+            {
+              "title": "Command N",
+              "description": "Description of Command N"
+            }
+          ]
+        },
+        {
+          "scopes": [ "personal" ],
+          "commands": [
+            {
+              "title": "Personal command 1",
+              "description": "Description of Personal command 1"
+            },
+            {
+              "title": "Personal command N",
+              "description": "Description of Personal command N"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "connectors": [
+    {
+      "connectorId": "dd8168f5-00be-4d0e-849c-4848266825aa",
+      "configurationUrl": "https://57e771fc.ngrok.io/api/messages/",
+      "scopes": [ "team" ]
+    }
+  ],
+  "composeExtensions": [
+    {
+      "botId": "b6de1dce-ab70-4a06-81ed-e20758574f25",
+      "canUpdateConfiguration": true,
+      "commands": [
+        {
+          "id": "exampleCmd1",
+          "title": "Example Command",
+          "description": "Command Description; e.g., Search on the web",
+          "initialRun": true,
+          "parameters": [
+            {
+              "name": "keyword",
+              "title": "Search keywords",
+              "description": "Enter the keywords to search for"
+            }
+          ]
+        },
+        {
+          "id": "exampleCmd2",
+          "title": "Example Command 2",
+          "description": "Command Description; e.g., Search for a customer",
+          "initialRun": true,
+          "parameters": [
+            {
+              "name": "custinfo",
+              "title": "Customer name or ID",
+              "description": "Enter a customer name or ID to search for"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+     "totalmortgage.com"
+  ]
+}
