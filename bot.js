@@ -2,7 +2,6 @@
 const { ActivityTypes } = require('botbuilder');
 const { CardFactory } = require('botbuilder');
 const path = require('path');
-const restify = require('restify');
 const bodyParser = require('body-parser');
 // Import required bot services. See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter, UserState, MemoryStorage, ConversationState } = require('botbuilder');
@@ -11,6 +10,42 @@ const { BotConfiguration } = require('botframework-config');
 
 var https = require('https');
 var request = require('request');
+
+
+//EXPRESS SERVER
+const express = require('express');
+var app = express();
+const port = 3979;
+
+var request = require('request');
+
+// Import required bot services. See https://aka.ms/bot-services to learn more about the different parts of a bot.
+// const { BotFrameworkAdapter, UserState, MemoryStorage, ConversationState } = require('botbuilder');
+
+// const { WelcomeBot } = require('./bot');
+
+var memoryStorage = new MemoryStorage();
+var memoryStorage1 = new MemoryStorage();
+userState = new UserState(memoryStorage);
+conversationState = new ConversationState(memoryStorage1);
+
+// const bot = new WelcomeBot(conversationState, userState);
+
+app.listen(port, () => {
+    console.log(`Server started`);
+});
+
+app.post('/api', (req, res) => {
+    console.log(res);
+    request.post('https://57e771fc.ngrok.io/api/messages', (err, response, body) => {
+        console.log(body);
+    });
+
+    res.send(`Received Data`);
+});
+
+//EXPRESS SERVER END
+
 
 const ENV_FILE = path.join(__dirname, '.env');
 const env = require('dotenv').config({ path: ENV_FILE });
@@ -67,6 +102,9 @@ const IntroCard = require('./resources/IntroCard.json');
 // Welcomed User property name
 const WELCOMED_USER = 'welcomedUserProperty';
 const BUTTON_CLICKED = 'buttonClickedProperty';
+const CONTEXT_STATE = 'contextStateProperty';
+
+var temp = false;
 
 class WelcomeBot {
     /**
@@ -86,17 +124,27 @@ class WelcomeBot {
         // Creates a new user property accessor.
         this.welcomedUserProperty = userState.createProperty(WELCOMED_USER);
         this.buttonClickedProperty = conversationState.createProperty(BUTTON_CLICKED);
+        this.contextState = conversationState.createProperty(CONTEXT_STATE);
         this.userState = userState;
         this.conversationState = conversationState;
         this.membersList = membersList;
-
-        
     }
     /**
      *
      * @param {TurnContext} context on turn context object.
      */
-    async onTurn(turnContext) {
+    async onTurn(turnContext, data) {
+                
+        console.log(turnContext);
+        if(data !== null) {
+            console.log(`received data `+ JSON.stringify(data));
+            
+            // var turnContext = this.conversationState.context;
+            // console.log("Inside typeofdata : " + JSON.stringify(turnContext));
+            turnContext.activity.text = '<at>mytmsbot</at> salesforce';
+        }
+
+        
         await this.getMemberData(turnContext);
 
         if(turnContext.activity.type === ActivityTypes.Invoke){
@@ -155,12 +203,74 @@ class WelcomeBot {
                     console.log("in here");
                     await turnContext.sendActivity("You said "+text);
                     break;
-                case 'list':
-                
+                case 'leads':
+                    // setInterval(function() {
+                        
+                    // }, 1000);
                     
                     // var members = await this.getMembers(turnContext);
                     // await turnContext.sendActivity(`members are ${JSON.stringify(members)}`);
 
+                    break;
+
+                case 'salesforce':
+                    var sfdata = JSON.stringify(turnContext.activity.data);
+                    await turnContext.sendActivity(`Salesforce data received!`);
+                    await turnContext.sendActivity(`Data is ${sfdata}`)
+                    await turnContext.sendActivity({
+                        text: 'Salesforce Lead Data',
+                        attachments: [{
+                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                            "type": "AdaptiveCard",
+                            "version": "1.0",
+                            "body": [
+                              {
+                                "type": "Image",
+                                "url": "https://www.totalmortgage.com/images/logos/tmslogo.png",
+                                "size": "stretch"
+                              },
+                              {
+                                "type": "TextBlock",
+                                "spacing": "medium",
+                                "size": "default",
+                                "weight": "bolder",
+                                "text": "Welcome to TMS Bot!",
+                                "wrap": true,
+                                "maxLines": 0
+                              },
+                              {
+                                "type": "TextBlock",
+                                "size": "default",
+                                "isSubtle": true,
+                                "text": "Welcome to Welcome Users bot sample! This Introduction card is a great way to introduce your Bot to the user and suggest some things to get them started. We use this opportunity to recommend a few next steps for learning more creating and deploying bots.",
+                                "wrap": true,
+                                "maxLines": 0
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "Action.Submit",
+                                "title": "Test here",
+                                "data": {
+                                    "msteams": {
+                                      "type": "invoke",
+                                      "displayText": "button clicked",
+                                      "text": "text to bots",
+                                      "value": "{\"invokeValue\": \"Good\"}"
+                                  }
+                                }
+                              },
+                              {
+                                "type": "Action.Submit",
+                                "title": "Second Test",
+                                "value": 
+                                  {
+                                    "name": "User"
+                                  }
+                              }
+                            ]
+                          }]
+                    })
                     break;
                 case 'intro':
                 case 'help':
@@ -219,6 +329,14 @@ class WelcomeBot {
     //     return members;
     // }
    
+    // async receivedData(data) {
+    //     console.log("Data is" + JSON.stringify(data));
+    //     temp = true;
+    //     await this.onTurn(this.conversationState.context, data);
+    //     console.log(`going to onTurn`);
+    // }
+
+
     async getMemberData(turnContext){
         
         if(!turnContext.activity.conversation.isGroup){

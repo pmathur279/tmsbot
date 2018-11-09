@@ -65,16 +65,22 @@ adapter.onTurnError = async (context, error) => {
 
 // Define a state store for your bot. See https://aka.ms/about-bot-state to learn more about using MemoryStorage.
 // A bot requires a state store to persist the dialog and user state between messages.
-let userState;
-let conversationState;
+// let userState;
+// let conversationState;
 
 // For local development, in-memory storage is used.
 // CAUTION: The Memory Storage used here is for local bot debugging only. When the bot
 // is restarted, anything stored in memory will be gone.
 var memoryStorage = new MemoryStorage();
 var memoryStorage1 = new MemoryStorage();
-userState = new UserState(memoryStorage);
-conversationState = new ConversationState(memoryStorage1);
+let userState = new UserState(memoryStorage);
+const conversationState = new ConversationState(memoryStorage1);
+
+var activity_id;
+var channel_id;
+var authorizationToken;
+
+// adapter.use(conversationState);
 
 // CAUTION: You must ensure your product environment has the NODE_ENV set
 //          to use the Azure Blob storage or Azure Cosmos DB providers.
@@ -107,28 +113,80 @@ server.listen(process.env.port || process.env.PORT || 3978, function() {
 // Listen for incoming activities and route them to your bot main dialog.
 server.post('/api/messages', (req, res) => {
     console.log("came here");
+    console.log(req);
     
     adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
-        // await logConversationState(context);
+
+        channel_id = context.activity.channelData.teamsChannelId;
+        activity_id = context.activity.id;
+        authorizationToken = req.headers.authorization;
+
+        await logConversationState(context);
 
         console.log(context);
-        await bot.onTurn(context);
+        await bot.onTurn(context, null);
     });
 });
 
 server.post('/api', (req, res) => {
     console.log("Salesforce Data");
-    res.send(200);
+    var data = req.body;
+    // var context = conversationState['context']
+    // bot.onTurn(context, req.body);
+    // res.send(200);
+    req.headers.authorization = authorizationToken;
+
+    req.body = { 
+        data : data,
+        text: '',
+        textFormat: 'plain',
+        attachments: [ [Object] ],
+        type: 'message',
+        timestamp: '2018-11-09T16:52:54.434Z',
+        localTimestamp: '2018-11-09T11:52:54.434-05:00',
+        id: activity_id+1,
+        channelId: 'msteams',
+        serviceUrl: 'https://smba.trafficmanager.net/amer/',
+        from:
+        { id: '29:17VcvG_NmR6IH4HH7bTQ9fM_12nmmfHiVaz9Nj98OeJBshii7LYT-3ildmNJcd_QoW-OAn5_KpEvB33yjuV7uAQ',
+        name: 'Pratik Mathur',
+        aadObjectId: 'a687d323-8d8d-4e36-87ad-bae4fc030e4b' },
+        conversation:
+        { isGroup: true,
+        conversationType: 'channel',
+        id: channel_id+';messageid='+activity_id+1 },
+        recipient:
+        { id: '28:b6de1dce-ab70-4a06-81ed-e20758574f25',
+        name: 'mytmsbot' },
+        entities: [ [Object], [Object] ],
+        channelData:
+        { teamsChannelId: channel_id,
+        teamsTeamId: channel_id,
+        channel: [Object],
+        team: [Object],
+        tenant: [Object] } }
+
+        console.log(req);
+        adapter.processActivity(req, res, async (context) => {
+        // route to main dialog.
+        // await logConversationState(context);
+
+        console.log(context);
+        await bot.onTurn(context, data);
+    });
 });
+
+async function getConversationState(){
+    return conversationState['context'];
+}
 
 async function logConversationState(context){
     try {
-        // await storage.write(context);
-        console.log("context is "+context);
-        conversationState.write(context);
+        conversationState['context'] = context;
         console.log('Successful write');
-        console.log("conversationState "+ conversationState);
+        console.log("conversationState "+ JSON.stringify(conversationState));
+        conversationState.saveChanges(context);
     }
     catch(err) {
         console.log("Error in storing");
