@@ -151,7 +151,7 @@ class WelcomeBot {
             const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
             if(wasButtonClicked === false){
                 await this.buttonClickedProperty.set(turnContext, true);  
-
+                console.log(turnContext);
                 for(var i=0; i< membersList.length; i++){
                     if(membersList[i].id === turnContext.activity.from.id){
                         await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
@@ -214,61 +214,114 @@ class WelcomeBot {
                     break;
 
                 case 'salesforce':
-                    var sfdata = JSON.stringify(turnContext.activity.data);
-                    await turnContext.sendActivity(`Salesforce data received!`);
+                    var sfdata = turnContext.activity.data;
+                    // await turnContext.sendActivity(`Salesforce data received!`);
                     await turnContext.sendActivity(`Data is ${sfdata}`)
                     await turnContext.sendActivity({
-                        text: 'Salesforce Lead Data',
                         attachments: [{
-                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                            "type": "AdaptiveCard",
-                            "version": "1.0",
-                            "body": [
-                              {
-                                "type": "Image",
-                                "url": "https://www.totalmortgage.com/images/logos/tmslogo.png",
-                                "size": "stretch"
-                              },
-                              {
-                                "type": "TextBlock",
-                                "spacing": "medium",
-                                "size": "default",
-                                "weight": "bolder",
-                                "text": "Welcome to TMS Bot!",
-                                "wrap": true,
-                                "maxLines": 0
-                              },
-                              {
-                                "type": "TextBlock",
-                                "size": "default",
-                                "isSubtle": true,
-                                "text": "Welcome to Welcome Users bot sample! This Introduction card is a great way to introduce your Bot to the user and suggest some things to get them started. We use this opportunity to recommend a few next steps for learning more creating and deploying bots.",
-                                "wrap": true,
-                                "maxLines": 0
-                              }
-                            ],
-                            "actions": [
-                              {
-                                "type": "Action.Submit",
-                                "title": "Test here",
-                                "data": {
-                                    "msteams": {
-                                      "type": "invoke",
-                                      "displayText": "button clicked",
-                                      "text": "text to bots",
-                                      "value": "{\"invokeValue\": \"Good\"}"
-                                  }
-                                }
-                              },
-                              {
-                                "type": "Action.Submit",
-                                "title": "Second Test",
-                                "value": 
+                            contentType: "application/vnd.microsoft.card.adaptive",
+                            content: {
+                                $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+                                type: "AdaptiveCard",
+                                version: "1.0",
+                                body: [
+                                    {
+                                        "type": "TextBlock",
+                                        "spacing": "medium",
+                                        "size": "large",
+                                        "weight": "bolder",
+                                        "text": "Salesforce Lead Data",
+                                        "wrap": true,
+                                        "maxLines": 0
+                                    },
+                                    {
+                                    "type": "Image",
+                                    "url": "https://www.totalmortgage.com/images/logos/tmslogo.png",
+                                    "size": "stretch"
+                                  },
                                   {
-                                    "name": "User"
+                                    "type": "TextBlock",
+                                    "size": "default",
+                                    "isSubtle": true,
+                                    "text": "New Lead has arrived:",
+                                    "wrap": true,
+                                    "maxLines": 0
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "spacing": "medium",
+                                    "size": "default",
+                                    "weight": "bolder",
+                                    "text": "First Name : "+sfdata['FirstName'],
+                                    "wrap": true,
+                                    "maxLines": 0
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "spacing": "medium",
+                                    "size": "default",
+                                    "weight": "bolder",
+                                    "text": "Last Name : "+sfdata['LastName'],
+                                    "wrap": true,
+                                    "maxLines": 0
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "spacing": "medium",
+                                    "size": "default",
+                                    "weight": "bolder",
+                                    "text": "Status : "+sfdata['Status'],
+                                    "wrap": true,
+                                    "maxLines": 0
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "spacing": "high",
+                                    "size": "default",
+                                    "weight": "bolder",
+                                    "text": "Loan Type : "+sfdata['Loan_Type'],
+                                    "wrap": true,
+                                    "maxLines": 0
+                                  },
+                                  {
+                                    "type": "TextBlock",
+                                    "spacing": "medium",
+                                    "size": "default",
+                                    "weight": "bolder",
+                                    "text": "Property State : "+sfdata['Property_State'],
+                                    "wrap": true,
+                                    "maxLines": 0
                                   }
-                              }
-                            ]
+                                  
+                                ],
+                                "actions": [
+                                  {
+                                    "type": "Action.Submit",
+                                    "title": "Claim Lead",
+                                    "data": {
+                                        "msteams": {
+                                          "type": "invoke",
+                                          "displayText": "button clicked",
+                                          "text": "text to bots",
+                                          "value": "www.google.com"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "type": "Action.Submit",
+                                    "title": "View Lead",
+                                    "data": {
+                                        "msteams": {
+                                          "type": "invoke",
+                                          "displayText": "button clicked",
+                                          "text": "text to bots",
+                                          "value": "www.totalmortgage.com"
+                                      }
+                                    }
+                                  } 
+                                ] 
+                            }
+                            
                           }]
                     })
                     break;

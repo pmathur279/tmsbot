@@ -113,7 +113,7 @@ server.listen(process.env.port || process.env.PORT || 3978, function() {
 // Listen for incoming activities and route them to your bot main dialog.
 server.post('/api/messages', (req, res) => {
     console.log("came here");
-    console.log(req);
+    // console.log(req);
     
     adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
@@ -124,7 +124,7 @@ server.post('/api/messages', (req, res) => {
 
         await logConversationState(context);
 
-        console.log(context);
+        // console.log(context);
         await bot.onTurn(context, null);
     });
 });
@@ -167,12 +167,12 @@ server.post('/api', (req, res) => {
         team: [Object],
         tenant: [Object] } }
 
-        console.log(req);
+        // console.log(req);
         adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
         // await logConversationState(context);
 
-        console.log(context);
+        // console.log(context);
         await bot.onTurn(context, data);
     });
 });
@@ -185,7 +185,7 @@ async function logConversationState(context){
     try {
         conversationState['context'] = context;
         console.log('Successful write');
-        console.log("conversationState "+ JSON.stringify(conversationState));
+        // console.log("conversationState "+ JSON.stringify(conversationState));
         conversationState.saveChanges(context);
     }
     catch(err) {
