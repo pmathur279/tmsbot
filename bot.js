@@ -102,6 +102,7 @@ const IntroCard = require('./resources/IntroCard.json');
 // Welcomed User property name
 const WELCOMED_USER = 'welcomedUserProperty';
 const BUTTON_CLICKED = 'buttonClickedProperty';
+const ACTIVITY_ID = 'activityIdProperty';
 const CONTEXT_STATE = 'contextStateProperty';
 
 var temp = false;
@@ -124,6 +125,7 @@ class WelcomeBot {
         // Creates a new user property accessor.
         this.welcomedUserProperty = userState.createProperty(WELCOMED_USER);
         this.buttonClickedProperty = conversationState.createProperty(BUTTON_CLICKED);
+        this.activityIdProperty = conversationState.createProperty(ACTIVITY_ID);
         this.contextState = conversationState.createProperty(CONTEXT_STATE);
         this.userState = userState;
         this.conversationState = conversationState;
@@ -135,7 +137,7 @@ class WelcomeBot {
      */
     async onTurn(turnContext, data) {
                 
-        console.log(turnContext);
+        //console.log(turnContext);
         if(data !== null) {
             console.log(`received data `+ JSON.stringify(data));
             
@@ -148,18 +150,26 @@ class WelcomeBot {
         await this.getMemberData(turnContext);
 
         if(turnContext.activity.type === ActivityTypes.Invoke){
+            // console.log(turnContext);
             const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
-            if(wasButtonClicked === false){
-                await this.buttonClickedProperty.set(turnContext, true);  
-                console.log(turnContext);
+            console.log(wasButtonClicked);
+            // console.log(turnContext);
+            if(!wasButtonClicked){
+                console.log("inside");
+                console.log("before loop");
+                // console.log(turnContext);
                 for(var i=0; i< membersList.length; i++){
+                    console.log("inside the loop");
                     if(membersList[i].id === turnContext.activity.from.id){
                         await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
                     }
                 }
+                await this.buttonClickedProperty.set(turnContext, true);
+                await this.activityIdProperty.set(turnContext, turnContext.activity.id); 
 
                 // await turnContext.sendActivity(`${ turnContext.activity.from.name } clicked the button!`);   
-                await this.conversationState.saveChanges(turnContext);                 
+                await this.conversationState.saveChanges(turnContext); 
+                // console.log(this.conversationState);                
             }
             else {
                 await turnContext.sendActivity(`Button already clicked!`);
@@ -189,6 +199,7 @@ class WelcomeBot {
                 // This example uses an exact match on user's input utterance.
                 // Consider using LUIS or QnA for Natural Language Processing.
                 var text = turnContext.activity.text.toLowerCase();
+                console.log(text);
                 if(turnContext.activity.conversation['conversationType'] === 'personal'){
                     console.log('personal');
                 }
@@ -196,6 +207,7 @@ class WelcomeBot {
                     var msg = text;
                     text = msg.slice(18, msg.length);
                     text=text.trim();
+                    console.log(text);
                 }
                 switch (text) {
                 case 'hello':
@@ -204,19 +216,28 @@ class WelcomeBot {
                     await turnContext.sendActivity("You said "+text);
                     break;
                 case 'leads':
-                    // setInterval(function() {
-                        
-                    // }, 1000);
-                    
-                    // var members = await this.getMembers(turnContext);
-                    // await turnContext.sendActivity(`members are ${JSON.stringify(members)}`);
+                    console.log("leads");
+                    console.log(membersList);
+                    console.log(turnContext);
+                    for(var i=0; i< membersList.length; i++){
+                        console.log("inside the loop");
+                        if(membersList[i].id === turnContext.activity.from.id){
+                            await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
+                        }
+                    }
+                    await this.buttonClickedProperty.set(turnContext, true);
+                    await this.activityIdProperty.set(turnContext, turnContext.activity.id); 
+
+                    // await turnContext.sendActivity(`${ turnContext.activity.from.name } clicked the button!`);   
+                    await this.conversationState.saveChanges(turnContext); 
+                    // console.log(this.conversationState);
 
                     break;
 
                 case 'salesforce':
-                    var sfdata = turnContext.activity.data;
+                    var sfdata = data;
                     // await turnContext.sendActivity(`Salesforce data received!`);
-                    await turnContext.sendActivity(`Data is ${sfdata}`)
+                    // await turnContext.sendActivity(`Data is ${sfdata}`)
                     await turnContext.sendActivity({
                         attachments: [{
                             contentType: "application/vnd.microsoft.card.adaptive",
@@ -300,10 +321,10 @@ class WelcomeBot {
                                     "title": "Claim Lead",
                                     "data": {
                                         "msteams": {
-                                          "type": "invoke",
-                                          "displayText": "button clicked",
-                                          "text": "text to bots",
-                                          "value": "www.google.com"
+                                          "type": "messageBack",
+                                          "displayText": "",
+                                          "text": "<at>mytmsbot</at> leads",
+                                          "value": "{\"invokeResponse\": \"Good\"}"
                                       }
                                     }
                                   },

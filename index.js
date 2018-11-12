@@ -76,6 +76,8 @@ var memoryStorage1 = new MemoryStorage();
 let userState = new UserState(memoryStorage);
 const conversationState = new ConversationState(memoryStorage1);
 
+var requestData;
+
 var activity_id;
 var channel_id;
 var authorizationToken;
@@ -117,14 +119,16 @@ server.post('/api/messages', (req, res) => {
     
     adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
+    
+        requestData = req.body;
 
         channel_id = context.activity.channelData.teamsChannelId;
         activity_id = context.activity.id;
         authorizationToken = req.headers.authorization;
 
-        await logConversationState(context);
+        // await logConversationState(context);
 
-        // console.log(context);
+        console.log(context);
         await bot.onTurn(context, null);
     });
 });
@@ -132,47 +136,41 @@ server.post('/api/messages', (req, res) => {
 server.post('/api', (req, res) => {
     console.log("Salesforce Data");
     var data = req.body;
+    console.log(data);
     // var context = conversationState['context']
     // bot.onTurn(context, req.body);
     // res.send(200);
     req.headers.authorization = authorizationToken;
+    req.body = requestData;
 
-    req.body = { 
-        data : data,
-        text: '',
-        textFormat: 'plain',
-        attachments: [ [Object] ],
-        type: 'message',
-        timestamp: '2018-11-09T16:52:54.434Z',
-        localTimestamp: '2018-11-09T11:52:54.434-05:00',
-        id: activity_id+1,
-        channelId: 'msteams',
-        serviceUrl: 'https://smba.trafficmanager.net/amer/',
-        from:
-        { id: '29:17VcvG_NmR6IH4HH7bTQ9fM_12nmmfHiVaz9Nj98OeJBshii7LYT-3ildmNJcd_QoW-OAn5_KpEvB33yjuV7uAQ',
-        name: 'Pratik Mathur',
-        aadObjectId: 'a687d323-8d8d-4e36-87ad-bae4fc030e4b' },
-        conversation:
-        { isGroup: true,
-        conversationType: 'channel',
-        id: channel_id+';messageid='+activity_id+1 },
-        recipient:
-        { id: '28:b6de1dce-ab70-4a06-81ed-e20758574f25',
-        name: 'mytmsbot' },
-        entities: [ [Object], [Object] ],
-        channelData:
-        { teamsChannelId: channel_id,
-        teamsTeamId: channel_id,
-        channel: [Object],
-        team: [Object],
-        tenant: [Object] } }
+    // req.body.channelData.teamsTeamId = channel_id;
+    // req.body.channelData.teamsChannelId = channel_id;
+    // req.body.id = activity_id;
+    // req.body.conversation.id = channel_id+';messageid='+activity_id+1;
 
-        // console.log(req);
+
+    let state = data.state;
+
+    switch(state){
+        case 'CT': 
+            channel_id = '19:143bfa51ccd4417bad065466f59057b1@thread.skype';
+            break;
+        case 'NY': 
+            channel_id = '19:f09d68df39be4ca68018faf6f21bf360@thread.skype';
+            break;       
+    }
+
+    req.body.channelData.teamsTeamId = channel_id;
+    req.body.channelData.teamsChannelId = channel_id;
+    req.body.id = activity_id;
+    req.body.conversation.id = channel_id+';messageid='+activity_id+1;
+
+    console.log(req.body);
         adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
         // await logConversationState(context);
 
-        // console.log(context);
+        console.log(context);
         await bot.onTurn(context, data);
     });
 });
