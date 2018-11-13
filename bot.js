@@ -137,27 +137,21 @@ class WelcomeBot {
      */
     async onTurn(turnContext, data) {
                 
-        //console.log(turnContext);
         if(data !== null) {
             console.log(`received data `+ JSON.stringify(data));
-            
-            // var turnContext = this.conversationState.context;
-            // console.log("Inside typeofdata : " + JSON.stringify(turnContext));
             turnContext.activity.text = '<at>mytmsbot</at> salesforce';
         }
-
         
         await this.getMemberData(turnContext);
 
         if(turnContext.activity.type === ActivityTypes.Invoke){
-            // console.log(turnContext);
+            
             const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
             console.log(wasButtonClicked);
-            // console.log(turnContext);
+            
             if(!wasButtonClicked){
                 console.log("inside");
-                console.log("before loop");
-                // console.log(turnContext);
+                
                 for(var i=0; i< membersList.length; i++){
                     console.log("inside the loop");
                     if(membersList[i].id === turnContext.activity.from.id){
@@ -168,8 +162,7 @@ class WelcomeBot {
                 await this.activityIdProperty.set(turnContext, turnContext.activity.id); 
 
                 // await turnContext.sendActivity(`${ turnContext.activity.from.name } clicked the button!`);   
-                await this.conversationState.saveChanges(turnContext); 
-                // console.log(this.conversationState);                
+                await this.conversationState.saveChanges(turnContext);                
             }
             else {
                 await turnContext.sendActivity(`Button already clicked!`);
@@ -189,9 +182,7 @@ class WelcomeBot {
 
                 // await this.getMemberData(turnContext);
 
-                await turnContext.sendActivity('You are seeing this message because this was your first message ever sent to this bot.');
-                await turnContext.sendActivity(`text was ` + turnContext.activity.text);
-                await turnContext.sendActivity(`It is a good practice to welcome the user and provide personal greeting. For example, welcome ${ userName }.`);
+                await turnContext.sendActivity(`Welcome to TMS Bot, ${ userName }.`);
 
                 // Set the flag indicating the bot handled the user's first message.
                 await this.welcomedUserProperty.set(turnContext, true);
@@ -216,22 +207,27 @@ class WelcomeBot {
                     await turnContext.sendActivity("You said "+text);
                     break;
                 case 'leads':
+                    const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
                     console.log("leads");
-                    console.log(membersList);
-                    console.log(turnContext);
-                    for(var i=0; i< membersList.length; i++){
-                        console.log("inside the loop");
-                        if(membersList[i].id === turnContext.activity.from.id){
-                            await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
+                    console.log(wasButtonClicked);
+                    
+                    if(!wasButtonClicked){
+                        for(var i=0; i< membersList.length; i++){
+                            console.log("inside the loop");
+                            if(membersList[i].id === turnContext.activity.from.id){
+                                await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
+                            }
                         }
+                        await this.buttonClickedProperty.set(turnContext, true);
+                        // await this.activityIdProperty.set(turnContext, turnContext.activity.id);     
                     }
-                    await this.buttonClickedProperty.set(turnContext, true);
-                    await this.activityIdProperty.set(turnContext, turnContext.activity.id); 
-
+                    else {
+                        await turnContext.sendActivity(`Button already clicked!`);
+                    }
+                    
                     // await turnContext.sendActivity(`${ turnContext.activity.from.name } clicked the button!`);   
                     await this.conversationState.saveChanges(turnContext); 
-                    // console.log(this.conversationState);
-
+                    console.log(this.conversationState);
                     break;
 
                 case 'salesforce':
@@ -344,11 +340,13 @@ class WelcomeBot {
                             }
                             
                           }]
-                    })
+                    });
+                    break;
+                case 'members': 
+                    console.log(membersList);
                     break;
                 case 'intro':
                 case 'help':
-                    await turnContext.sendActivity(`members are ${membersList}`);
                     await turnContext.sendActivity({
                         text: 'Intro Adaptive Card',
                         attachments: [CardFactory.adaptiveCard(IntroCard)]

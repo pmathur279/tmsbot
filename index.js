@@ -78,9 +78,9 @@ const conversationState = new ConversationState(memoryStorage1);
 
 var requestData;
 
-var activity_id;
-var channel_id;
-var authorizationToken;
+let activity_id;
+let channel_id;
+let authorizationToken;
 
 // adapter.use(conversationState);
 
@@ -111,7 +111,7 @@ server.listen(process.env.port || process.env.PORT || 3978, function() {
     console.log(`\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator`);
     console.log(`\nTo talk to your bot, open welcome-users.bot file in the Emulator`);
 });
-
+var count = 0;
 // Listen for incoming activities and route them to your bot main dialog.
 server.post('/api/messages', (req, res) => {
     console.log("came here");
@@ -119,16 +119,15 @@ server.post('/api/messages', (req, res) => {
     
     adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
-    
+        count++;
         requestData = req.body;
-
+        
+        if(count===1) {
+            activity_id = context.activity.id;
+        }
         channel_id = context.activity.channelData.teamsChannelId;
-        activity_id = context.activity.id;
         authorizationToken = req.headers.authorization;
-
-        // await logConversationState(context);
-
-        console.log(context);
+        
         await bot.onTurn(context, null);
     });
 });
@@ -137,17 +136,9 @@ server.post('/api', (req, res) => {
     console.log("Salesforce Data");
     var data = req.body;
     console.log(data);
-    // var context = conversationState['context']
-    // bot.onTurn(context, req.body);
-    // res.send(200);
+    
     req.headers.authorization = authorizationToken;
     req.body = requestData;
-
-    // req.body.channelData.teamsTeamId = channel_id;
-    // req.body.channelData.teamsChannelId = channel_id;
-    // req.body.id = activity_id;
-    // req.body.conversation.id = channel_id+';messageid='+activity_id+1;
-
 
     let state = data.state;
 
@@ -159,20 +150,22 @@ server.post('/api', (req, res) => {
             channel_id = '19:f09d68df39be4ca68018faf6f21bf360@thread.skype';
             break;       
     }
-
+    console.log(activity_id);
     req.body.channelData.teamsTeamId = channel_id;
     req.body.channelData.teamsChannelId = channel_id;
     req.body.id = activity_id;
     req.body.conversation.id = channel_id+';messageid='+activity_id+1;
-
-    console.log(req.body);
+    // console.log(activity_id);
+    // console.log(req.body);
         adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
         // await logConversationState(context);
-
+        activity_id = context.activity.id;
+        console.log("id is "+activity_id);
         console.log(context);
         await bot.onTurn(context, data);
     });
+    // activity_id = activity_id + 1;
 });
 
 async function getConversationState(){
