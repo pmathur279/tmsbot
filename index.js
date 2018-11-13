@@ -73,8 +73,8 @@ adapter.onTurnError = async (context, error) => {
 // is restarted, anything stored in memory will be gone.
 var memoryStorage = new MemoryStorage();
 var memoryStorage1 = new MemoryStorage();
-let userState = new UserState(memoryStorage);
-const conversationState = new ConversationState(memoryStorage1);
+// let userState = new UserState(memoryStorage);
+// const conversationState = new ConversationState(memoryStorage1);
 
 var requestData;
 
@@ -84,10 +84,10 @@ let authorizationToken;
 
 // adapter.use(conversationState);
 
-// CAUTION: You must ensure your product environment has the NODE_ENV set
-//          to use the Azure Blob storage or Azure Cosmos DB providers.
+// // CAUTION: You must ensure your product environment has the NODE_ENV set
+//         //  to use the Azure Blob storage or Azure Cosmos DB providers.
 // const { BlobStorage } = require('botbuilder-azure');
-// Storage configuration name or ID from .bot file
+// // Storage configuration name or ID from .bot file
 // const STORAGE_CONFIGURATION_ID = '<STORAGE-NAME-OR-ID-FROM-BOT-FILE>';
 // // Default container name
 // const DEFAULT_BOT_CONTAINER = '<DEFAULT-CONTAINER>';
@@ -99,6 +99,23 @@ let authorizationToken;
 // });
 // userState = new userState(blobStorage);
 
+
+// CAUTION: You must ensure your product environment has the NODE_ENV set
+        //  to use the Azure Blob storage or Azure Cosmos DB providers.
+const { BlobStorage } = require('botbuilder-azure');
+// Storage configuration name or ID from .bot file
+// const STORAGE_CONFIGURATION_ID = '<STORAGE-NAME-OR-ID-FROM-BOT-FILE>';
+// Default container name
+// const DEFAULT_BOT_CONTAINER = '<DEFAULT-CONTAINER>';
+// Get service configuration
+// const blobStorageConfig = botConfig.findServiceByNameOrId(STORAGE_CONFIGURATION_ID);
+const blobStorage = new BlobStorage({
+    containerName: 'mytmsbotblob',
+    storageAccountOrConnectionString: `DefaultEndpointsProtocol=https;AccountName=mytmsbotblob;AccountKey=3xHm5r3+RDlI5vBmUwdkkcNdyG8lfDGjcJ24QGPDt/tgMiXAYoNitQvzTXG5O/RWPkZPV6mBjj8p0AUuZXO0Qw==;EndpointSuffix=core.windows.net`,
+});
+// userState = new userState(blobStorage);
+conversationState = new ConversationState(blobStorage);
+userState = new UserState(blobStorage);
 // Create the main dialog.
 const bot = new WelcomeBot(conversationState, userState);
 
@@ -115,9 +132,9 @@ var count = 0;
 // Listen for incoming activities and route them to your bot main dialog.
 server.post('/api/messages', (req, res) => {
     console.log("came here");
-    // console.log(req);
     
     adapter.processActivity(req, res, async (context) => {
+        console.log(context);
         // route to main dialog.
         count++;
         requestData = req.body;
@@ -148,7 +165,10 @@ server.post('/api', (req, res) => {
             break;
         case 'NY': 
             channel_id = '19:f09d68df39be4ca68018faf6f21bf360@thread.skype';
-            break;       
+            break;
+        case 'RI':
+            channel_id = '19:4edacd5443634d74b93e8583f9583e7f@thread.skype';
+            break;
     }
     console.log(activity_id);
     req.body.channelData.teamsTeamId = channel_id;

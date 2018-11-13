@@ -150,8 +150,6 @@ class WelcomeBot {
             console.log(wasButtonClicked);
             
             if(!wasButtonClicked){
-                console.log("inside");
-                
                 for(var i=0; i< membersList.length; i++){
                     console.log("inside the loop");
                     if(membersList[i].id === turnContext.activity.from.id){
@@ -160,8 +158,7 @@ class WelcomeBot {
                 }
                 await this.buttonClickedProperty.set(turnContext, true);
                 await this.activityIdProperty.set(turnContext, turnContext.activity.id); 
-
-                // await turnContext.sendActivity(`${ turnContext.activity.from.name } clicked the button!`);   
+   
                 await this.conversationState.saveChanges(turnContext);                
             }
             else {
@@ -174,15 +171,15 @@ class WelcomeBot {
             // set the default to false.
             const didBotWelcomedUser = await this.welcomedUserProperty.get(turnContext, false);
 
+            console.log(this.userState);
             // Your bot should proactively send a welcome message to a personal chat the first time
             // (and only the first time) a user initiates a personal chat with your bot.
             if (didBotWelcomedUser === false) {
                 // The channel should send the user name in the 'From' object
                 let userName = turnContext.activity.from.name;
 
-                // await this.getMemberData(turnContext);
-
-                await turnContext.sendActivity(`Welcome to TMS Bot, ${ userName }.`);
+                await this.getMemberData(turnContext);
+                await turnContext.sendActivity(`Welcome to TMS Bot ${turnContext.activity.from.name}!`);
 
                 // Set the flag indicating the bot handled the user's first message.
                 await this.welcomedUserProperty.set(turnContext, true);
@@ -203,14 +200,10 @@ class WelcomeBot {
                 switch (text) {
                 case 'hello':
                 case 'hi':
-                    console.log("in here");
                     await turnContext.sendActivity("You said "+text);
                     break;
                 case 'leads':
                     const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
-                    console.log("leads");
-                    console.log(wasButtonClicked);
-                    
                     if(!wasButtonClicked){
                         for(var i=0; i< membersList.length; i++){
                             console.log("inside the loop");

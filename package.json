@@ -13,6 +13,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "botbuilder": "^4.0.6",
+    "botbuilder-azure": "^4.1.5",
     "botbuilder-teams": "^0.2.4",
     "botframework-config": "^4.0.6",
     "cryptiles": "^4.1.2",
