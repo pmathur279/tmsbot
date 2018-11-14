@@ -1,98 +1,19 @@
 // Import required Bot Framework classes.
 const { ActivityTypes } = require('botbuilder');
 const { CardFactory } = require('botbuilder');
-const path = require('path');
-const bodyParser = require('body-parser');
+
 // Import required bot services. See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter, UserState, MemoryStorage, ConversationState } = require('botbuilder');
+const { UserState, ConversationState } = require('botbuilder');
 // Import required bot configuration.
-const { BotConfiguration } = require('botframework-config');
-
-var https = require('https');
-var request = require('request');
-
-
-//EXPRESS SERVER
-const express = require('express');
-var app = express();
-const port = 3979;
 
 var request = require('request');
-
-// Import required bot services. See https://aka.ms/bot-services to learn more about the different parts of a bot.
-// const { BotFrameworkAdapter, UserState, MemoryStorage, ConversationState } = require('botbuilder');
-
-// const { WelcomeBot } = require('./bot');
-
-var memoryStorage = new MemoryStorage();
-var memoryStorage1 = new MemoryStorage();
-userState = new UserState(memoryStorage);
-conversationState = new ConversationState(memoryStorage1);
-
-// const bot = new WelcomeBot(conversationState, userState);
-
-app.listen(port, () => {
-    console.log(`Server started`);
-});
-
-app.post('/api', (req, res) => {
-    console.log(res);
-    request.post('https://57e771fc.ngrok.io/api/messages', (err, response, body) => {
-        console.log(body);
-    });
-
-    res.send(`Received Data`);
-});
-
-//EXPRESS SERVER END
-
-
-const ENV_FILE = path.join(__dirname, '.env');
-const env = require('dotenv').config({ path: ENV_FILE });
-
-// Get the .bot file path
-// See https://aka.ms/about-bot-file to learn more about .bot file its use and bot configuration.
-const BOT_FILE = path.join(__dirname, (process.env.botFilePath || ''));
-let botConfig;
-try {
-    // Read bot configuration from .bot file.
-    botConfig = BotConfiguration.loadSync(BOT_FILE, process.env.botFileSecret);
-} catch (err) {
-    console.error(`\nError reading bot file. Please ensure you have valid botFilePath and botFileSecret set for your environment.`);
-    console.error(`\n - The botFileSecret is available under appsettings for your Azure Bot Service bot.`);
-    console.error(`\n - If you are running this bot locally, consider adding a .env file with botFilePath and botFileSecret.`);
-    console.error(`\n - See https://aka.ms/about-bot-file to learn more about .bot file its use and bot configuration.\n\n`);
-    process.exit();
-}
-
-// For local development configuration as defined in .bot file
-const DEV_ENVIRONMENT = 'development';
-
-// Define name of the endpoint configuration section from the .bot file
-const BOT_CONFIGURATION = (process.env.NODE_ENV || DEV_ENVIRONMENT);
-
-// Get bot endpoint configuration by service name
-// Bot configuration as defined in .bot file
-const endpointConfig = botConfig.findServiceByNameOrId(BOT_CONFIGURATION);
 
 // Create bot adapter.
 // See https://aka.ms/about-bot-adapter to learn more about bot adapter.
-const adapter = new BotFrameworkAdapter({
-    appId: endpointConfig.appId || process.env.microsoftAppID,
-    appPassword: endpointConfig.appPassword || process.env.microsoftAppPassword
-});
-
-// Catch-all for any unhandled errors in your bot.
-adapter.onTurnError = async (context, error) => {
-    // This check writes out errors to console log .vs. app insights.
-    console.error(`\n [onTurnError]: ${ error }`);
-    // Send a message to the user
-    context.sendActivity(`Oops. Something went wrong!`);
-    // Clear out state
-    await userState.clear(context);
-    // Save state changes.
-    await userState.saveChanges(context);
-};
+// const adapter = new BotFrameworkAdapter({
+//     appId: endpointConfig.appId || process.env.microsoftAppID,
+//     appPassword: endpointConfig.appPassword || process.env.microsoftAppPassword
+// });
 
 let membersList;
 let access_token;
@@ -104,8 +25,6 @@ const WELCOMED_USER = 'welcomedUserProperty';
 const BUTTON_CLICKED = 'buttonClickedProperty';
 const ACTIVITY_ID = 'activityIdProperty';
 const CONTEXT_STATE = 'contextStateProperty';
-
-var temp = false;
 
 class WelcomeBot {
     /**
@@ -119,7 +38,6 @@ class WelcomeBot {
      * @param {ConversationState} User state to persist boolean flag to indicate
      *                    if the bot had already welcomed the user
      */
-
 
     constructor(conversationState, userState) {
         // Creates a new user property accessor.
@@ -142,16 +60,14 @@ class WelcomeBot {
             turnContext.activity.text = '<at>mytmsbot</at> salesforce';
         }
         
-        await this.getMemberData(turnContext);
+        this.getMemberData(turnContext);
 
         if(turnContext.activity.type === ActivityTypes.Invoke){
             
             const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
-            console.log(wasButtonClicked);
             
             if(!wasButtonClicked){
                 for(var i=0; i< membersList.length; i++){
-                    console.log("inside the loop");
                     if(membersList[i].id === turnContext.activity.from.id){
                         await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
                     }
@@ -176,8 +92,6 @@ class WelcomeBot {
             // (and only the first time) a user initiates a personal chat with your bot.
             if (didBotWelcomedUser === false) {
                 // The channel should send the user name in the 'From' object
-                let userName = turnContext.activity.from.name;
-
                 await this.getMemberData(turnContext);
                 await turnContext.sendActivity(`Welcome to TMS Bot ${turnContext.activity.from.name}!`);
 
@@ -251,54 +165,69 @@ class WelcomeBot {
                                   },
                                   {
                                     "type": "TextBlock",
-                                    "size": "default",
-                                    "isSubtle": true,
-                                    "text": "New Lead has arrived:",
+                                    "size": "medium",
+                                    // "isSubtle": true,
+                                    // "weight": "bolder",
+                                    "text": "**New Lead has arrived:**",
                                     "wrap": true,
                                     "maxLines": 0
                                   },
+                                  {
+                                    "type": "ColumnSet",
+                                    "columns": [
+                                        {
+                                        "type": "Column",
+                                        "items": [{
+                                                "type": "TextBlock",
+                                                "spacing": "medium",
+                                                "size": "default",
+                                                // "weight": "bolder",
+                                                "text": "**First Name** : "+sfdata['FirstName'],
+                                                "wrap": true,
+                                                "maxLines": 0,
+                                                "seperator" : true
+                                            },
+                                            {
+                                                "type": "TextBlock",
+                                                "spacing": "medium",
+                                                "size": "default",
+                                                // "weight": "bolder",
+                                                "text": "**Last Name** : "+sfdata['LastName'],
+                                                "wrap": true,
+                                                "maxLines": 0
+                                            }  
+                                        ]
+                                    },
+                                    {
+                                        "type": "Column",
+                                        "items": [{
+                                            "type": "TextBlock",
+                                            "spacing": "medium",
+                                            "size": "default",
+                                            // "weight": "bolder",
+                                            "text": "**Status** : "+sfdata['Status'],
+                                            "wrap": true,
+                                            "maxLines": 0
+                                          },
+                                          {
+                                            "type": "TextBlock",
+                                            "spacing": "high",
+                                            "size": "default",
+                                            // "weight": "bolder",
+                                            "text": "**Loan Type** : "+sfdata['Loan_Type'],
+                                            "wrap": true,
+                                            "maxLines": 0
+                                          }  
+                                        ]
+                                    }   
+                                ]
+                                },
                                   {
                                     "type": "TextBlock",
                                     "spacing": "medium",
                                     "size": "default",
-                                    "weight": "bolder",
-                                    "text": "First Name : "+sfdata['FirstName'],
-                                    "wrap": true,
-                                    "maxLines": 0
-                                  },
-                                  {
-                                    "type": "TextBlock",
-                                    "spacing": "medium",
-                                    "size": "default",
-                                    "weight": "bolder",
-                                    "text": "Last Name : "+sfdata['LastName'],
-                                    "wrap": true,
-                                    "maxLines": 0
-                                  },
-                                  {
-                                    "type": "TextBlock",
-                                    "spacing": "medium",
-                                    "size": "default",
-                                    "weight": "bolder",
-                                    "text": "Status : "+sfdata['Status'],
-                                    "wrap": true,
-                                    "maxLines": 0
-                                  },
-                                  {
-                                    "type": "TextBlock",
-                                    "spacing": "high",
-                                    "size": "default",
-                                    "weight": "bolder",
-                                    "text": "Loan Type : "+sfdata['Loan_Type'],
-                                    "wrap": true,
-                                    "maxLines": 0
-                                  },
-                                  {
-                                    "type": "TextBlock",
-                                    "spacing": "medium",
-                                    "size": "default",
-                                    "weight": "bolder",
-                                    "text": "Property State : "+sfdata['Property_State'],
+                                    // "weight": "bolder",
+                                    "text": "**Property State** : "+sfdata['Property_State'],
                                     "wrap": true,
                                     "maxLines": 0
                                   }
@@ -308,6 +237,7 @@ class WelcomeBot {
                                   {
                                     "type": "Action.Submit",
                                     "title": "Claim Lead",
+                                    "spacing": "medium",
                                     "data": {
                                         "msteams": {
                                           "type": "messageBack",
@@ -336,7 +266,7 @@ class WelcomeBot {
                     });
                     break;
                 case 'members': 
-                    console.log(membersList);
+                    console.log(JSON.stringify(membersList));
                     break;
                 case 'intro':
                 case 'help':
