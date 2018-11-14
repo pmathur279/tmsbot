@@ -150,19 +150,34 @@ class WelcomeBot {
                                 version: "1.0",
                                 body: [
                                     {
-                                        "type": "TextBlock",
-                                        "spacing": "medium",
-                                        "size": "large",
-                                        "weight": "bolder",
-                                        "text": "Salesforce Lead Data",
-                                        "wrap": true,
-                                        "maxLines": 0
+                                        "type": "ColumnSet",
+                                        "columns": [
+                                            {
+                                            "type": "Column",
+                                            "items": [{
+                                                "type": "TextBlock",
+                                                // "spacing": "medium",
+                                                "size": "large",
+                                                "weight": "bolder",
+                                                "text": "Application Offer",
+                                                "wrap": true,
+                                                "maxLines": 0
+                                            }
+                                            ]
+                                        },
+                                        {
+                                            "type": "Column",
+                                            "items": [
+                                            {
+                                                "type": "Image",
+                                                "url": "https://www.totalmortgage.com/images/logos/tmslogo.png",
+                                                "size": "stretch",
+                                                "horizontalAlignment": "right"
+                                            }  
+                                            ]
+                                        }   
+                                    ]
                                     },
-                                    {
-                                    "type": "Image",
-                                    "url": "https://www.totalmortgage.com/images/logos/tmslogo.png",
-                                    "size": "stretch"
-                                  },
                                   {
                                     "type": "TextBlock",
                                     "size": "medium",
@@ -179,7 +194,7 @@ class WelcomeBot {
                                         "type": "Column",
                                         "items": [{
                                                 "type": "TextBlock",
-                                                "spacing": "medium",
+                                                "spacing": "small",
                                                 "size": "default",
                                                 // "weight": "bolder",
                                                 "text": "**First Name** : "+sfdata['FirstName'],
@@ -189,7 +204,7 @@ class WelcomeBot {
                                             },
                                             {
                                                 "type": "TextBlock",
-                                                "spacing": "medium",
+                                                "spacing": "small",
                                                 "size": "default",
                                                 // "weight": "bolder",
                                                 "text": "**Last Name** : "+sfdata['LastName'],
@@ -202,7 +217,7 @@ class WelcomeBot {
                                         "type": "Column",
                                         "items": [{
                                             "type": "TextBlock",
-                                            "spacing": "medium",
+                                            "spacing": "small",
                                             "size": "default",
                                             // "weight": "bolder",
                                             "text": "**Status** : "+sfdata['Status'],
@@ -211,7 +226,7 @@ class WelcomeBot {
                                           },
                                           {
                                             "type": "TextBlock",
-                                            "spacing": "high",
+                                            "spacing": "small",
                                             "size": "default",
                                             // "weight": "bolder",
                                             "text": "**Loan Type** : "+sfdata['Loan_Type'],
@@ -224,7 +239,7 @@ class WelcomeBot {
                                 },
                                   {
                                     "type": "TextBlock",
-                                    "spacing": "medium",
+                                    "spacing": "small",
                                     "size": "default",
                                     // "weight": "bolder",
                                     "text": "**Property State** : "+sfdata['Property_State'],
@@ -236,7 +251,7 @@ class WelcomeBot {
                                 "actions": [
                                   {
                                     "type": "Action.Submit",
-                                    "title": "Claim Lead",
+                                    "title": "Claim",
                                     "spacing": "medium",
                                     "data": {
                                         "msteams": {
@@ -249,7 +264,7 @@ class WelcomeBot {
                                   },
                                   {
                                     "type": "Action.Submit",
-                                    "title": "View Lead",
+                                    "title": "View",
                                     "data": {
                                         "msteams": {
                                           "type": "invoke",

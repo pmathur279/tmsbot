@@ -25,7 +25,7 @@
   "accentColor": "#6f6f6f",
   "configurableTabs": [
     {
-      "configurationUrl": "https://68.183.54.32/api/messages",
+      "configurationUrl": "https://c0bfda60.ngrok.io/api/messages",
       "canUpdateConfiguration": true,
       "scopes": [ "team" ]
     }
@@ -34,7 +34,7 @@
     {
       "entityId": "com.totalmortgage.hellobot.hellotab",
       "name": "TMS Bot",
-      "contentUrl": "https://68.183.54.32/api/messages",
+      "contentUrl": "https://c0bfda60.ngrok.io/api/messages",
       "websiteUrl": "https://contoso.com/content",
       "scopes": [ "personal" ]
     }
@@ -79,7 +79,7 @@
   "connectors": [
     {
       "connectorId": "dd8168f5-00be-4d0e-849c-4848266825aa",
-      "configurationUrl": "https://68.183.54.32/api/messages",
+      "configurationUrl": "https://c0bfda60.ngrok.io/api/messages",
       "scopes": [ "team" ]
     }
   ],
