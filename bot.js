@@ -56,7 +56,6 @@ class WelcomeBot {
     async onTurn(turnContext, data) {
                 
         if(data !== null) {
-            console.log(`received data `+ JSON.stringify(data));
             turnContext.activity.text = '<at>mytmsbot</at> salesforce';
         }
         
@@ -87,7 +86,6 @@ class WelcomeBot {
             // set the default to false.
             const didBotWelcomedUser = await this.welcomedUserProperty.get(turnContext, false);
 
-            console.log(this.userState);
             // Your bot should proactively send a welcome message to a personal chat the first time
             // (and only the first time) a user initiates a personal chat with your bot.
             if (didBotWelcomedUser === false) {
@@ -101,7 +99,6 @@ class WelcomeBot {
                 // This example uses an exact match on user's input utterance.
                 // Consider using LUIS or QnA for Natural Language Processing.
                 var text = turnContext.activity.text.toLowerCase();
-                console.log(text);
                 if(turnContext.activity.conversation['conversationType'] === 'personal'){
                     console.log('personal');
                 }
@@ -109,7 +106,6 @@ class WelcomeBot {
                     var msg = text;
                     text = msg.slice(18, msg.length);
                     text=text.trim();
-                    console.log(text);
                 }
                 switch (text) {
                 case 'hello':
@@ -120,7 +116,6 @@ class WelcomeBot {
                     const wasButtonClicked = await this.buttonClickedProperty.get(turnContext, false);
                     if(!wasButtonClicked){
                         for(var i=0; i< membersList.length; i++){
-                            console.log("inside the loop");
                             if(membersList[i].id === turnContext.activity.from.id){
                                 await turnContext.sendActivity(`${ turnContext.activity.from.name }  with email address ${membersList[i].email } clicked the button!`); 
                             }
@@ -134,7 +129,6 @@ class WelcomeBot {
                     
                     // await turnContext.sendActivity(`${ turnContext.activity.from.name } clicked the button!`);   
                     await this.conversationState.saveChanges(turnContext); 
-                    console.log(this.conversationState);
                     break;
 
                 case 'salesforce':
@@ -281,6 +275,7 @@ class WelcomeBot {
                     });
                     break;
                 case 'members': 
+                    await turnContext.sendActivity(`There are ${membersList.length} in the channel`);
                     console.log(JSON.stringify(membersList));
                     break;
                 case 'intro':
@@ -289,10 +284,9 @@ class WelcomeBot {
                         text: 'Intro Adaptive Card',
                         attachments: [CardFactory.adaptiveCard(IntroCard)]
                     });
-                    // await turnContext.sendActivity("${ userName } clicked first!");
                     break;
                 default :
-                    await turnContext.sendActivity(`This is a simple Welcome Bot sample. You can say 'intro' to see the introduction card. If you are running this bot in the Bot Framework Emulator, press the 'Start Over' button to simulate user joining a bot or a channel`);
+                    await turnContext.sendActivity(`Command does not exist!`);
                 }
             }
             // Save state changes

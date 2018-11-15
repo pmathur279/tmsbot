@@ -170,22 +170,19 @@ server.post('/api', (req, res) => {
             channel_id = '19:4edacd5443634d74b93e8583f9583e7f@thread.skype';
             break;
     }
-    console.log(activity_id);
+   
     req.body.channelData.teamsTeamId = channel_id;
     req.body.channelData.teamsChannelId = channel_id;
     req.body.id = activity_id;
     req.body.conversation.id = channel_id+';messageid='+activity_id+1;
-    // console.log(activity_id);
-    // console.log(req.body);
-        adapter.processActivity(req, res, async (context) => {
+   
+    adapter.processActivity(req, res, async (context) => {
         // route to main dialog.
         // await logConversationState(context);
         activity_id = context.activity.id;
-        console.log("id is "+activity_id);
-        console.log(context);
+    
         await bot.onTurn(context, data);
     });
-    // activity_id = activity_id + 1;
 });
 
 async function getConversationState(){
